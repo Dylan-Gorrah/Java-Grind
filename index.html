@@ -9,21 +9,22 @@
 <style>
 /* ============ TOKENS ============ */
 :root {
-  --bg: #f7f4ef;
-  --bg-2: #fffefb;
-  --bg-3: #efe9e1;
-  --fg: #2a211c;
-  --muted: #6b5f57;
-  --dim: #8a7d73;
-  --pink: #b04a70;
-  --pink-soft: rgba(176, 74, 112, 0.10);
-  --pink-edge: rgba(176, 74, 112, 0.28);
-  --on-pink: #fffefb;
-  --line: #e5ddd3;
-  --line-2: #d3c7b9;
-  --shadow-s: 0 1px 2px rgba(58, 42, 32, 0.05), 0 2px 8px rgba(58, 42, 32, 0.04);
-  --shadow-m: 0 2px 6px rgba(58, 42, 32, 0.07), 0 12px 28px rgba(58, 42, 32, 0.07);
-  --glass: rgba(255, 254, 251, 0.78);
+  --bg: #e9e5dc;
+  --bg-2: #f2efe8;
+  --bg-3: #dfdad0;
+  --fg: #1e1b17;
+  --muted: #635c53;
+  --dim: #847c72;
+  --pink: #a8446a;
+  --pink-soft: rgba(168, 68, 106, 0.09);
+  --pink-edge: rgba(168, 68, 106, 0.30);
+  --on-pink: #f7f5f0;
+  --line: #d5cec3;
+  --line-2: #c2b9ac;
+  --shadow-s: 0 1px 2px rgba(48, 38, 28, 0.05), 0 2px 8px rgba(48, 38, 28, 0.04);
+  --shadow-m: 0 2px 6px rgba(48, 38, 28, 0.07), 0 14px 30px rgba(48, 38, 28, 0.08);
+  --glass: rgba(242, 239, 232, 0.80);
+  --grain: 0.055;
 
   --r-s: 10px;
   --r-m: 16px;
@@ -37,21 +38,22 @@
   --spring: cubic-bezier(0.34, 1.42, 0.64, 1);
 }
 [data-theme="dark"] {
-  --bg: #1a1310;
-  --bg-2: #241a15;
-  --bg-3: #130e0c;
-  --fg: #f4ece5;
-  --muted: #a8968b;
-  --dim: #7a685e;
+  --bg: #121110;
+  --bg-2: #2a231e;
+  --bg-3: #0c0b0a;
+  --fg: #f0e8e0;
+  --muted: #b0a094;
+  --dim: #7d6f65;
   --pink: #f0a3bd;
-  --pink-soft: rgba(240, 163, 189, 0.12);
-  --pink-edge: rgba(240, 163, 189, 0.30);
-  --on-pink: #1a1310;
-  --line: #33251f;
-  --line-2: #45332b;
-  --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-m: 0 2px 6px rgba(0, 0, 0, 0.35), 0 14px 32px rgba(0, 0, 0, 0.45);
-  --glass: rgba(36, 26, 21, 0.78);
+  --pink-soft: rgba(240, 163, 189, 0.10);
+  --pink-edge: rgba(240, 163, 189, 0.32);
+  --on-pink: #121110;
+  --line: #3a322b;
+  --line-2: #4c4139;
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-m: 0 2px 6px rgba(0, 0, 0, 0.45), 0 16px 34px rgba(0, 0, 0, 0.55);
+  --glass: rgba(18, 17, 16, 0.80);
+  --grain: 0.04;
 }
 
 /* ============ BASE ============ */
@@ -70,6 +72,14 @@ h1, h2, h3 { font-family: ui-serif, Georgia, "Iowan Old Style", "Times New Roman
 code, pre, .mono { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; }
 button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
 ::selection { background: var(--pink); color: var(--on-pink); }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: var(--grain);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+[data-theme="dark"] body::before { mix-blend-mode: screen; }
+header, main, .toast, .sheet, .sheet-bg { position: relative; z-index: 1; }
 :focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; border-radius: var(--r-s); }
 
 .wrap { width: min(100% - 1.6rem, 880px); margin-inline: auto; }
@@ -139,9 +149,6 @@ h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
   box-shadow: var(--shadow-s); padding: 1.1rem 1.2rem;
   transition: box-shadow var(--mid) var(--ease), border-color var(--mid) var(--ease), background var(--slow) var(--ease);
 }
-.tips { display: grid; gap: 0.55rem; margin-bottom: 1.4rem; }
-.tips li { list-style: none; display: grid; grid-template-columns: auto 1fr; gap: 0.65rem; align-items: start; font-size: 0.9rem; color: var(--muted); }
-.tips svg { width: 15px; height: 15px; color: var(--pink); margin-top: 0.28rem; flex: none; }
 
 /* stage */
 .stage { margin-bottom: 0.9rem; }
@@ -262,6 +269,50 @@ h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
 }
 .toast.up { transform: translate(-50%, 0); }
 
+/* strategy sheet */
+.sheet-bg {
+  position: fixed; inset: 0; z-index: 100; background: rgba(20, 16, 12, 0.42);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none; transition: opacity var(--mid) var(--ease);
+}
+.sheet-bg.on { opacity: 1; pointer-events: auto; }
+.sheet {
+  position: fixed; z-index: 101; left: 50%; bottom: 0;
+  width: min(100% - 1rem, 540px);
+  transform: translate(-50%, 108%);
+  background: var(--bg-2); border: 1px solid var(--line); border-bottom: 0;
+  border-radius: var(--r-l) var(--r-l) 0 0; box-shadow: var(--shadow-m);
+  padding: 1rem 1.4rem 2rem; max-height: 88vh; overflow-y: auto;
+  transition: transform var(--slow) var(--spring);
+}
+.sheet.on { transform: translate(-50%, 0); }
+.grab { width: 38px; height: 4px; border-radius: var(--r-pill); background: var(--line-2); margin: 0 auto 1.1rem; }
+.sheet h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.sheet p { font-size: 0.92rem; color: var(--muted); }
+.steps { list-style: none; counter-reset: n; margin: 1.1rem 0; display: grid; gap: 0.7rem; }
+.steps li { counter-increment: n; display: grid; grid-template-columns: 1.6rem 1fr; gap: 0.7rem; font-size: 0.92rem; }
+.steps li::before { content: counter(n); font-size: 0.72rem; font-weight: 700; color: var(--pink); background: var(--pink-soft); border-radius: var(--r-pill); width: 1.5rem; height: 1.5rem; display: grid; place-content: center; }
+.steps b { font-weight: 600; }
+.steps span { color: var(--muted); }
+
+/* trace + explain */
+.snip { background: var(--bg-3); border: 1px solid var(--line); border-radius: var(--r-s); padding: 0.9rem 1rem; overflow-x: auto; font-size: 0.8rem; line-height: 1.65; white-space: pre; }
+.ask { font-size: 0.92rem; font-weight: 600; margin: 0.9rem 0 0.8rem; }
+.reveal { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--slow) var(--ease); }
+.reveal.open { grid-template-rows: 1fr; }
+.reveal > div { overflow: hidden; }
+.out { background: var(--pink-soft); border: 1px solid var(--pink-edge); border-radius: var(--r-s); padding: 0.85rem 1rem; margin-top: 0.9rem; }
+.out pre { font-size: 0.82rem; line-height: 1.6; white-space: pre-wrap; }
+.out .why { font-size: 0.85rem; color: var(--muted); margin-top: 0.6rem; }
+textarea {
+  width: 100%; min-height: 82px; resize: vertical; font: inherit; font-size: 0.92rem;
+  background: var(--bg-3); color: var(--fg); border: 1px solid var(--line);
+  border-radius: var(--r-s); padding: 0.75rem 0.9rem; margin-top: 0.8rem;
+  transition: border-color var(--fast) var(--ease);
+}
+textarea:focus { outline: none; border-color: var(--pink); }
+textarea::placeholder { color: var(--dim); }
+
 .foot { margin-top: 2.5rem; padding-top: 1.4rem; border-top: 1px solid var(--line); font-size: 0.8rem; color: var(--dim); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -289,6 +340,8 @@ h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
     <nav class="nav" role="tablist" aria-label="Sections">
       <span id="pillbar"></span>
       <button role="tab" aria-selected="true" data-view="road">Roadmap</button>
+      <button role="tab" aria-selected="false" data-view="trace">Trace</button>
+      <button role="tab" aria-selected="false" data-view="explain">Explain</button>
       <button role="tab" aria-selected="false" data-view="drill">Drill</button>
       <button role="tab" aria-selected="false" data-view="cards">Cards</button>
       <button role="tab" aria-selected="false" data-view="prog">Progress</button>
@@ -303,14 +356,47 @@ h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
     <h2 class="title">Work top to bottom</h2>
     <p class="lede">Six stages. Finish one before starting the next. JFrame unlocks at the end.</p>
 
-    <ul class="tips">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>Read the task, close this page, write it in your IDE from memory.</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>Only open the reference after you have tried. Compare, then retype it yourself.</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>Rate honestly. Anything you mark Shaky comes back on your redo list.</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>Three exercises a day beats twenty on a Sunday. Autocomplete off.</span></li>
-    </ul>
-
     <div id="stages"></div>
+  </section>
+
+  <!-- TRACE -->
+  <section class="view block" id="view-trace">
+    <h2 class="title">Guess the output</h2>
+    <p class="lede">Read it, say what it prints, then check. Wrong guesses are the useful ones.</p>
+
+    <div class="card">
+      <pre class="snip"><code id="trCode"></code></pre>
+      <p class="ask">What does this print?</p>
+      <div class="row">
+        <button class="btn primary" id="trShow">Check</button>
+        <button class="btn" id="trNext">Next</button>
+      </div>
+      <div class="reveal" id="trReveal"><div><div class="out">
+        <pre id="trOut"></pre>
+        <p class="why" id="trWhy"></p>
+      </div></div></div>
+      <p class="tiny muted" style="margin-top:0.9rem"><span id="trCount">01 / 12</span></p>
+    </div>
+  </section>
+
+  <!-- EXPLAIN -->
+  <section class="view block" id="view-explain">
+    <h2 class="title">One sentence</h2>
+    <p class="lede">What is this method for? Not line by line. One sentence.</p>
+
+    <div class="card">
+      <pre class="snip"><code id="exCode"></code></pre>
+      <textarea id="exInput" placeholder="This method..."></textarea>
+      <div class="row" style="margin-top:0.8rem">
+        <button class="btn primary" id="exShow">Compare</button>
+        <button class="btn" id="exNext">Next</button>
+      </div>
+      <div class="reveal" id="exReveal"><div><div class="out">
+        <p id="exAns" style="font-size:0.92rem"></p>
+        <p class="why">Close enough counts. If yours describes the steps instead of the purpose, try again.</p>
+      </div></div></div>
+      <p class="tiny muted" style="margin-top:0.9rem"><span id="exCount">01 / 10</span></p>
+    </div>
   </section>
 
   <!-- DRILL -->
@@ -403,6 +489,21 @@ h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
   </section>
 
 </main>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="How to use this">
+  <div class="grab"></div>
+  <h3>The strategy</h3>
+  <p>Understanding code happens in four steps. Most people jump straight to the last one and wonder why it hurts.</p>
+  <ol class="steps">
+    <li><b>Trace.</b> <span>Read code and guess what it prints before you run it.</span></li>
+    <li><b>Explain.</b> <span>Say what a method is for in one sentence.</span></li>
+    <li><b>Write.</b> <span>Blank file, from memory, autocomplete off.</span></li>
+    <li><b>Build.</b> <span>Put the pieces together into a real app.</span></li>
+  </ol>
+  <p>Do a bit of each, every day. Read a task, close the page, write it in your IDE. Only open the reference once you have tried, then retype it yourself. Rate honestly, because Shaky comes back on your redo list. Three a day beats twenty on a Sunday.</p>
+  <div class="row" style="margin-top:1.2rem"><button class="btn primary" id="sheetClose">Got it</button></div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -547,6 +648,56 @@ h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
     ['Button click', 'button.addActionListener(e -> {\n    label.setText(field.getText());\n});']
   ];
 
+  var TRACE = [
+    { c: 'int x = 5;\nSystem.out.println(x++);\nSystem.out.println(x);',
+      o: '5\n6', w: 'x++ hands back the old value first, then adds one. ++x would print 6 and 6.' },
+    { c: 'int a = 7, b = 2;\nSystem.out.println(a / b);\nSystem.out.println(a / (double) b);',
+      o: '3\n3.5', w: 'Two ints divide as ints and the remainder is thrown away. One double in the sum fixes it.' },
+    { c: 'String a = "Java";\nString b = new String("Java");\nSystem.out.println(a == b);\nSystem.out.println(a.equals(b));',
+      o: 'false\ntrue', w: '== compares whether they are the same object. equals compares the text.' },
+    { c: 'int i = 10;\ndo {\n    System.out.println("ran " + i);\n    i++;\n} while (i < 5);',
+      o: 'ran 10', w: 'do-while always runs once before it checks the condition.' },
+    { c: 'int day = 2;\nswitch (day) {\n    case 1: System.out.println("Mon");\n    case 2: System.out.println("Tue");\n    case 3: System.out.println("Wed"); break;\n    default: System.out.println("Other");\n}',
+      o: 'Tue\nWed', w: 'No break after case 2, so it falls through into case 3.' },
+    { c: 'int count = 0;\nfor (int i = 0; i < 3; i++) {\n    for (int j = i; j < 3; j++) {\n        count++;\n    }\n}\nSystem.out.println(count);',
+      o: '6', w: 'The inner loop starts at i, so it runs 3 then 2 then 1 times.' },
+    { c: 'String s = "abc";\ns.toUpperCase();\nSystem.out.println(s);',
+      o: 'abc', w: 'Strings never change. toUpperCase returns a new one, so you have to assign it.' },
+    { c: 'List<Integer> nums = new ArrayList<>(List.of(10, 20, 30));\nnums.remove(1);\nSystem.out.println(nums);',
+      o: '[10, 30]', w: 'remove(int) deletes by index, not by value. remove(Integer.valueOf(1)) would delete the value.' },
+    { c: 'System.out.println(0.1 + 0.2);',
+      o: '0.30000000000000004', w: 'double cannot store those values exactly. Use BigDecimal for money.' },
+    { c: "System.out.println('A' + 1);\nSystem.out.println((char) ('A' + 1));",
+      o: '66\nB', w: 'A char turns into its number when you do maths on it. Cast back to char to see the letter.' },
+    { c: 'int[] values = {3, 6, 9};\nfor (int i = 0; i <= values.length; i++) {\n    System.out.println(values[i]);\n}',
+      o: '3\n6\n9\nthen ArrayIndexOutOfBoundsException', w: 'Indexes stop at length - 1. Use < length, never <= length.' },
+    { c: 'int total = 0;\nfor (int i = 1; i <= 4; i++) {\n    total += i;\n}\nSystem.out.println(total);',
+      o: '10', w: '1 + 2 + 3 + 4. The condition is <=, so 4 is included.' }
+  ];
+
+  var EXPLAIN = [
+    { c: 'public static int mystery(int[] values) {\n    int best = values[0];\n    for (int value : values) {\n        if (value > best) {\n            best = value;\n        }\n    }\n    return best;\n}',
+      a: 'It returns the largest number in the array.' },
+    { c: 'public static boolean mystery(String text) {\n    String clean = text.toLowerCase();\n    for (int i = 0; i < clean.length() / 2; i++) {\n        if (clean.charAt(i) != clean.charAt(clean.length() - 1 - i)) {\n            return false;\n        }\n    }\n    return true;\n}',
+      a: 'It checks whether a word reads the same forwards and backwards.' },
+    { c: 'public static int mystery(List<Student> students, String name) {\n    for (int i = 0; i < students.size(); i++) {\n        if (students.get(i).getName().equalsIgnoreCase(name)) {\n            return i;\n        }\n    }\n    return -1;\n}',
+      a: 'It finds where a student sits in the list by name, or returns -1 if that student is not there.' },
+    { c: 'public static void mystery(int[] values) {\n    for (int i = 0; i < values.length - 1; i++) {\n        for (int j = 0; j < values.length - 1 - i; j++) {\n            if (values[j] > values[j + 1]) {\n                int temp = values[j];\n                values[j] = values[j + 1];\n                values[j + 1] = temp;\n            }\n        }\n    }\n}',
+      a: 'It sorts the array from smallest to largest.' },
+    { c: 'public static Map<String, Integer> mystery(String text) {\n    Map<String, Integer> result = new HashMap<>();\n    for (String word : text.split(" ")) {\n        result.put(word, result.getOrDefault(word, 0) + 1);\n    }\n    return result;\n}',
+      a: 'It counts how many times each word appears in a sentence.' },
+    { c: 'public static double mystery(List<Student> students) {\n    if (students.isEmpty()) {\n        return 0;\n    }\n    double sum = 0;\n    for (Student s : students) {\n        sum += s.getMark();\n    }\n    return sum / students.size();\n}',
+      a: 'It works out the class average, and returns 0 when there are no students.' },
+    { c: 'public static String mystery(String text) {\n    StringBuilder sb = new StringBuilder();\n    for (int i = text.length() - 1; i >= 0; i--) {\n        sb.append(text.charAt(i));\n    }\n    return sb.toString();\n}',
+      a: 'It returns the text backwards.' },
+    { c: 'public static List<Student> mystery(List<Student> students, double cutoff) {\n    List<Student> result = new ArrayList<>();\n    for (Student s : students) {\n        if (s.getMark() >= cutoff) {\n            result.add(s);\n        }\n    }\n    return result;\n}',
+      a: 'It gives you a new list of only the students who scored at or above the cutoff.' },
+    { c: 'public static int mystery(int n) {\n    if (n <= 1) {\n        return 1;\n    }\n    return n * mystery(n - 1);\n}',
+      a: 'It works out the factorial of a number by calling itself.' },
+    { c: 'public void mystery(double mark) throws InvalidMarkException {\n    if (mark < 0 || mark > 100) {\n        throw new InvalidMarkException("Out of range: " + mark);\n    }\n    this.mark = mark;\n}',
+      a: 'It sets the mark, but refuses anything outside 0 to 100.' }
+  ];
+
   var LEVELS = [
     { v: 1, label: 'Shaky' },
     { v: 2, label: 'Getting there' },
@@ -567,6 +718,7 @@ h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
     if (!store.items) store.items = {};
     if (!store.days) store.days = [];
     if (!store.reps) store.reps = 0;
+    if (!store.notes) store.notes = {};
   }
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(store)); }
@@ -687,12 +839,12 @@ h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
     el.innerHTML =
       '<div class="ex-top"><span class="ex-n">' + (i + 1) + '</span><h4>' + ex.t + '</h4></div>' +
       '<p class="task">' + ex.k + '</p>' +
-      '<p class="tip">' + svg(ICON_BULB, 1.6) + '<span>' + ex.tip + '</span></p>' +
       '<div class="ex-acts">' +
         '<button class="chip ref-btn">' + svg(ICON_EYE, 1.6) + 'Reference</button>' +
         '<span class="conf-label">Felt:</span>' + chips +
       '</div>' +
-      '<div class="ref"><div><pre><code></code></pre></div></div>';
+      '<div class="ref"><div><p class="tip">' + svg(ICON_BULB, 1.6) + '<span>' + ex.tip +
+      '</span></p><pre><code></code></pre></div></div>';
 
     el.querySelector('code').textContent = ex.c;
 
@@ -858,6 +1010,59 @@ h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
   });
   showCard();
 
+  /* ============ TRACE ============ */
+  var tIdx = 0;
+  function showTrace() {
+    $('#trCode').textContent = TRACE[tIdx].c;
+    $('#trOut').textContent = TRACE[tIdx].o;
+    $('#trWhy').textContent = TRACE[tIdx].w;
+    $('#trReveal').classList.remove('open');
+    $('#trCount').textContent = (tIdx + 1 < 10 ? '0' : '') + (tIdx + 1) + ' / ' + TRACE.length;
+  }
+  $('#trShow').addEventListener('click', function () {
+    $('#trReveal').classList.toggle('open');
+    markDay(); save();
+  });
+  $('#trNext').addEventListener('click', function () { tIdx = (tIdx + 1) % TRACE.length; showTrace(); });
+  showTrace();
+
+  /* ============ EXPLAIN ============ */
+  var eIdx = 0;
+  if (!store.notes) store.notes = {};
+  function showExplain() {
+    $('#exCode').textContent = EXPLAIN[eIdx].c;
+    $('#exAns').textContent = EXPLAIN[eIdx].a;
+    $('#exInput').value = store.notes['x' + eIdx] || '';
+    $('#exReveal').classList.remove('open');
+    $('#exCount').textContent = (eIdx + 1 < 10 ? '0' : '') + (eIdx + 1) + ' / ' + EXPLAIN.length;
+  }
+  $('#exInput').addEventListener('input', function () {
+    store.notes['x' + eIdx] = this.value;
+    save();
+  });
+  $('#exShow').addEventListener('click', function () {
+    $('#exReveal').classList.toggle('open');
+    markDay(); save();
+  });
+  $('#exNext').addEventListener('click', function () { eIdx = (eIdx + 1) % EXPLAIN.length; showExplain(); });
+  showExplain();
+
+  /* ============ STRATEGY SHEET (triple tap Roadmap) ============ */
+  var sheet = $('#sheet'), sheetBg = $('#sheetBg');
+  function openSheet() { sheet.classList.add('on'); sheetBg.classList.add('on'); }
+  function closeSheet() { sheet.classList.remove('on'); sheetBg.classList.remove('on'); }
+  sheetBg.addEventListener('click', closeSheet);
+  $('#sheetClose').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSheet(); });
+
+  var taps = 0, tapTimer = null;
+  document.querySelector('[data-view="road"]').addEventListener('click', function () {
+    taps++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(function () { taps = 0; }, 700);
+    if (taps >= 3) { taps = 0; openSheet(); }
+  });
+
   /* ============ BACKUP ============ */
   $('#exp').addEventListener('click', function () {
     var blob = new Blob([JSON.stringify(store, null, 2)], { type: 'application/json' });
@@ -888,8 +1093,8 @@ h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
   });
   $('#wipe').addEventListener('click', function () {
     if (!confirm('Wipe all progress? Export first if you want a backup.')) return;
-    store = { items: {}, days: [], reps: 0 };
-    save(); render(); toast('Cleared');
+    store = { items: {}, days: [], reps: 0, notes: {} };
+    save(); render(); showExplain(); toast('Cleared');
   });
 
   /* ============ GO ============ */
