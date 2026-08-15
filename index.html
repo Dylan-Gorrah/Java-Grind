@@ -344,8 +344,8 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
 .steps b { display: block; }
 .steps span { color: var(--muted); font-size: 0.86rem; }
 
-/* island — sits a measured gap above the dock, never guesses */
-.island {
+/* hud — sits a measured gap above the dock, never guesses */
+.hud {
   position: fixed; left: 50%; bottom: var(--island-b, 118px); z-index: 70;
   display: flex; align-items: center; gap: 0.55rem;
   width: max-content; max-width: min(90vw, 400px);
@@ -354,21 +354,21 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
   transform: translate(-50%, 150%) scale(0.92); opacity: 0; pointer-events: none;
   transition: transform var(--slow) var(--spring), opacity var(--mid) var(--ease), bottom var(--mid) var(--ease);
 }
-.island.up { transform: translate(-50%, 0) scale(1); opacity: 1; pointer-events: auto; }
-.island .ico { flex: none; display: grid; place-items: center; width: 26px; height: 26px; opacity: 0.95; }
-.island .ico svg { width: 18px; height: 18px; }
-.island .txt { min-width: 0; display: grid; }
-.island .txt b { font-size: 0.82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.island .txt em { font-style: normal; font-size: 0.72rem; opacity: 0.68; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.island .act {
+.hud.up { transform: translate(-50%, 0) scale(1); opacity: 1; pointer-events: auto; }
+.hud .ico { flex: none; display: grid; place-items: center; width: 26px; height: 26px; opacity: 0.95; }
+.hud .ico svg { width: 18px; height: 18px; }
+.hud .txt { min-width: 0; display: grid; }
+.hud .txt b { font-size: 0.82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud .txt em { font-style: normal; font-size: 0.72rem; opacity: 0.68; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud .act {
   flex: none; margin-left: 0.15rem; padding: 0.32rem 0.75rem; border-radius: var(--r-p);
   border: 1px solid currentColor; font-size: 0.74rem; font-weight: 600; color: inherit; opacity: 0.85;
   transition: opacity var(--fast) var(--ease), transform var(--mid) var(--spring);
 }
-.island .act:active { transform: scale(0.92); }
-.island .act[hidden] { display: none; }
-.island .live { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--pink); margin-right: 0.1rem; animation: beat 1.6s infinite; }
-.island .live[hidden] { display: none; }
+.hud .act:active { transform: scale(0.92); }
+.hud .act[hidden] { display: none; }
+.hud .live { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--pink); margin-right: 0.1rem; animation: beat 1.6s infinite; }
+.hud .live[hidden] { display: none; }
 @keyframes beat { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.8); } }
 .island .clock { flex: none; font-size: 0.82rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .island .clock[hidden] { display: none; }
@@ -541,7 +541,7 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
   <div class="acts" style="margin-top:1.2rem"><button class="pill solid" id="sheetClose">Got it</button></div>
 </div>
 
-<div class="island" id="island" role="status" aria-live="polite">
+<div class="hud" id="hud" role="status" aria-live="polite">
   <span class="live" hidden></span>
   <span class="ico"></span>
   <span class="txt"><b></b><em></em></span>
@@ -925,7 +925,7 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
 
   /* ---------- island ----------
      One pill above the dock. Queues messages, holds live ones, never guesses its position. */
-  var isl = $('#island'), islIco = isl.querySelector('.ico'), islB = isl.querySelector('b'),
+  var isl = $('#hud'), islIco = isl.querySelector('.ico'), islB = isl.querySelector('b'),
       islEm = isl.querySelector('em'), islAct = isl.querySelector('.act'),
       islLive = isl.querySelector('.live'), islClock = isl.querySelector('.clock');
   var queue = [], showing = null, islTimer = null;
