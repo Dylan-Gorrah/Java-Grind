@@ -7,6 +7,10 @@
 <script>try{var t=localStorage.getItem('javaGrind.theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
 <meta name="description" content="Offline Java practice. Trace, explain, write, build. No login, no server." />
 <meta name="theme-color" content="#e9e5dc" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Java Grind" />
+<meta name="mobile-web-app-capable" content="yes" />
 <style>
 /* ================= TOKENS ================= */
 :root {
@@ -56,9 +60,17 @@
 
 /* ================= BASE ================= */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* app feel: no text selection, no long-press callout, no double-tap zoom.
+   Code stays unselectable on purpose — you are meant to retype it, not paste it. */
+body, button, .pane, .face, .ex, .row {
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none; touch-action: manipulation;
+}
+textarea, input { -webkit-user-select: text; user-select: text; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   background: var(--bg); color: var(--fg);
+  overscroll-behavior-y: none;
   font-family: ui-sans-serif, system-ui, "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px; line-height: 1.55;
   padding-bottom: calc(140px + env(safe-area-inset-bottom));
@@ -332,12 +344,34 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
 .steps b { display: block; }
 .steps span { color: var(--muted); font-size: 0.86rem; }
 
-.toast {
-  position: fixed; left: 50%; bottom: calc(6.2rem + env(safe-area-inset-bottom)); transform: translate(-50%, 200%);
-  background: var(--fg); color: var(--bg); padding: 0.6rem 1.1rem; border-radius: var(--r-p);
-  font-size: 0.82rem; box-shadow: var(--sh-2); z-index: 70; transition: transform var(--slow) var(--spring);
+/* island — sits a measured gap above the dock, never guesses */
+.island {
+  position: fixed; left: 50%; bottom: var(--island-b, 118px); z-index: 70;
+  display: flex; align-items: center; gap: 0.55rem;
+  width: max-content; max-width: min(90vw, 400px);
+  padding: 0.5rem 0.7rem 0.5rem 0.6rem; border-radius: var(--r-p);
+  background: var(--fg); color: var(--bg); box-shadow: var(--sh-3);
+  transform: translate(-50%, 150%) scale(0.92); opacity: 0; pointer-events: none;
+  transition: transform var(--slow) var(--spring), opacity var(--mid) var(--ease), bottom var(--mid) var(--ease);
 }
-.toast.up { transform: translate(-50%, 0); }
+.island.up { transform: translate(-50%, 0) scale(1); opacity: 1; pointer-events: auto; }
+.island .ico { flex: none; display: grid; place-items: center; width: 26px; height: 26px; opacity: 0.95; }
+.island .ico svg { width: 18px; height: 18px; }
+.island .txt { min-width: 0; display: grid; }
+.island .txt b { font-size: 0.82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.island .txt em { font-style: normal; font-size: 0.72rem; opacity: 0.68; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.island .act {
+  flex: none; margin-left: 0.15rem; padding: 0.32rem 0.75rem; border-radius: var(--r-p);
+  border: 1px solid currentColor; font-size: 0.74rem; font-weight: 600; color: inherit; opacity: 0.85;
+  transition: opacity var(--fast) var(--ease), transform var(--mid) var(--spring);
+}
+.island .act:active { transform: scale(0.92); }
+.island .act[hidden] { display: none; }
+.island .live { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--pink); margin-right: 0.1rem; animation: beat 1.6s infinite; }
+.island .live[hidden] { display: none; }
+@keyframes beat { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.8); } }
+.island .clock { flex: none; font-size: 0.82rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.island .clock[hidden] { display: none; }
 
 @media (prefers-reduced-motion: reduce) { * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
 </style>
@@ -507,7 +541,13 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
   <div class="acts" style="margin-top:1.2rem"><button class="pill solid" id="sheetClose">Got it</button></div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="island" id="island" role="status" aria-live="polite">
+  <span class="live" hidden></span>
+  <span class="ico"></span>
+  <span class="txt"><b></b><em></em></span>
+  <span class="clock" hidden></span>
+  <button class="act" hidden></button>
+</div>
 
 <script>
 (function () {
@@ -807,6 +847,15 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
     chev: '<path d="M9 6l6 6-6 6"/>',
     eye: '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>',
     bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/>',
+    check: '<path d="M20 6L9 17l-5-5"/>',
+    flame: '<path d="M12 22a7 7 0 0 0 7-7c0-5-4-6-4-10 0 0-3 1-4 5-1-1-1-3-1-3-2 2-5 5-5 8a7 7 0 0 0 7 7z"/>',
+    hand: '<path d="M18 11V7a2 2 0 0 0-4 0M14 10V5a2 2 0 0 0-4 0v6M10 10V7a2 2 0 0 0-4 0v9a6 6 0 0 0 6 6h2a6 6 0 0 0 6-6v-4a2 2 0 0 0-4 0"/>',
+    save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+    warn: '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+    wave: '<path d="M3 12h3l2-7 4 14 3-9 2 2h4"/>',
+    trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 3M7 5H4a3 3 0 0 0 3 3"/>',
+    cloud: '<path d="M17.5 19a4.5 4.5 0 0 0 .5-9 6 6 0 0 0-11.6-1.5A4 4 0 0 0 6.5 19z"/>',
+    undo: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
     left: '<path d="M15 6l-6 6 6 6"/>',
     right: '<path d="M9 6l6 6-6 6"/>',
     play: '<polygon points="7 4 20 12 7 20" fill="currentColor" stroke="none"/>',
@@ -828,8 +877,13 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
     if (!store.items) store.items = {};
     if (!store.days) store.days = [];
     if (!store.reps) store.reps = 0;
+    if (!store.log) store.log = {};
+    if (!store.seen) store.seen = {};
   }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) { toast('Could not save. Export a backup.'); } }
+  function todayCount() { return store.log[today()] || 0; }
+  function bump() { store.log[today()] = todayCount() + 1; }
+  function once(key) { if (store.seen[key]) return false; store.seen[key] = true; save(); return true; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) { say({ icon: I.warn, title: 'Not saving', sub: 'This browser blocks storage. Export often.', hold: 6000 }); } }
   function today() { return new Date().toISOString().slice(0, 10); }
   function markDay() { var d = today(); if (store.days.indexOf(d) === -1) { store.days.push(d); store.days.sort(); } }
   function streak() {
@@ -869,8 +923,71 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
     for (var k = 0; k < n; k++) setTimeout(function () { try { hapLabel.click(); } catch (e) {} }, k * 80);
   }
 
-  var toastEl = $('#toast'), tt = null;
-  function toast(m) { toastEl.textContent = m; toastEl.classList.add('up'); clearTimeout(tt); tt = setTimeout(function () { toastEl.classList.remove('up'); }, 2000); }
+  /* ---------- island ----------
+     One pill above the dock. Queues messages, holds live ones, never guesses its position. */
+  var isl = $('#island'), islIco = isl.querySelector('.ico'), islB = isl.querySelector('b'),
+      islEm = isl.querySelector('em'), islAct = isl.querySelector('.act'),
+      islLive = isl.querySelector('.live'), islClock = isl.querySelector('.clock');
+  var queue = [], showing = null, islTimer = null;
+
+  function placeIsland() {
+    var dock = document.querySelector('.dock');
+    if (!dock) return;
+    var r = dock.getBoundingClientRect();
+    var gap = window.innerHeight - r.top + 12;
+    if (!isFinite(gap) || gap < 96) gap = 96;
+    gap = Math.min(gap, Math.round(window.innerHeight * 0.34));
+    if (gap < 96) gap = 96;
+    document.documentElement.style.setProperty('--island-b', gap + 'px');
+  }
+  window.addEventListener('resize', placeIsland);
+  window.addEventListener('orientationchange', function () { setTimeout(placeIsland, 250); });
+
+  function paintIsland(m) {
+    islIco.innerHTML = m.icon ? svg(m.icon) : '';
+    islIco.style.display = m.icon ? 'grid' : 'none';
+    islB.textContent = m.title || '';
+    islEm.textContent = m.sub || '';
+    islEm.style.display = m.sub ? '' : 'none';
+    islLive.hidden = !m.live;
+    islClock.hidden = !m.clock;
+    if (m.clock) islClock.textContent = m.clock;
+    if (m.action) {
+      islAct.hidden = false;
+      islAct.textContent = m.action.label;
+      islAct.onclick = function () { hideIsland(); m.action.fn(); tap(); };
+    } else { islAct.hidden = true; islAct.onclick = null; }
+    isl.classList.add('up');
+    placeIsland();
+  }
+  function hideIsland() {
+    isl.classList.remove('up'); showing = null;
+    clearTimeout(islTimer);
+    setTimeout(pump, 260);
+  }
+  function pump() {
+    if (showing || !queue.length) return;
+    showing = queue.shift();
+    paintIsland(showing);
+    if (showing.hold !== 0) {
+      islTimer = setTimeout(hideIsland, showing.hold || (showing.action ? 4200 : 2300));
+    }
+  }
+  function say(m) {
+    if (typeof m === 'string') m = { title: m };
+    queue = queue.filter(function (q) { return q.keep; });      // drop stale passives
+    if (showing && showing.live && !m.live) { queue = [m]; return; }
+    if (showing && !showing.live) { hideIsland(); queue.unshift(m); return; }
+    queue.push(m); pump();
+  }
+  function live(m) {
+    clearTimeout(islTimer);
+    showing = Object.assign({ live: true, hold: 0 }, m);
+    paintIsland(showing);
+  }
+  function clearLive() { if (showing && showing.live) hideIsland(); }
+  function updateLive(clock) { if (showing && showing.live) { islClock.hidden = false; islClock.textContent = clock; } }
+  var toast = say;
 
   /* ---------- swipe ---------- */
   function swipe(deck, prev, next) {
@@ -1003,12 +1120,34 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
         var v = parseInt(d.getAttribute('data-v'), 10), cur = store.items[ex.id];
         if (cur && cur.c === v) { delete store.items[ex.id]; paintDots(0); el.classList.remove('done'); tap(); }
         else {
+          var beforePct = Math.round((Object.keys(store.items).length / TOTAL) * 100);
           var before = stageDone(st);
           store.items[ex.id] = { c: v, d: today(), r: (cur && cur.r ? cur.r + 1 : 1) };
-          store.reps++; markDay(); paintDots(v);
+          store.reps++; markDay(); bump(); paintDots(v);
+
           var full = stageDone(st) === st.ex.length && before < st.ex.length;
+          var afterPct = Math.round((Object.keys(store.items).length / TOTAL) * 100);
+          var n = todayCount();
+
           tap(full ? 'confirm' : 'light');
-          toast(full ? 'Stage clear' : v === 1 ? 'On your redo list' : 'Logged');
+
+          if (full) {
+            say({ icon: I.trophy, title: 'Stage clear', sub: st.name });
+          } else if (afterPct >= 100 && beforePct < 100) {
+            say({ icon: I.trophy, title: 'Whole course done', sub: 'Now go build something', hold: 5000 });
+          } else if (afterPct >= 50 && beforePct < 50) {
+            say({ icon: I.trophy, title: 'Halfway', sub: '50% of the course written' });
+          } else if (afterPct >= 25 && beforePct < 25) {
+            say({ icon: I.check, title: 'A quarter done', sub: 'Keep the pace' });
+          } else if (n === 3) {
+            say({ icon: I.flame, title: 'Three today', sub: 'That is the day done' });
+          } else if (v === 1) {
+            say({ icon: I.bulb, title: 'On your redo list', sub: 'Come back to this one',
+                  action: { label: 'Undo', fn: function () { delete store.items[ex.id]; save(); paintDots(0); refreshRings(); paint(); } } });
+          } else {
+            say({ icon: I.check, title: LABELS[v - 1], sub: ex.t,
+                  action: { label: 'Undo', fn: function () { delete store.items[ex.id]; save(); paintDots(0); refreshRings(); paint(); } } });
+          }
         }
         save(); refreshRings(); paint();
       });
@@ -1114,8 +1253,9 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
 
   /* ---------- timer ---------- */
   var DUR = 90, left = DUR, running = false, tick = null, CIRC = 565.5;
+  function fmt(sec) { return Math.floor(sec / 60) + ':' + (sec % 60 < 10 ? '0' : '') + (sec % 60); }
   function paintClock() {
-    $('#clock').textContent = Math.floor(left / 60) + ':' + (left % 60 < 10 ? '0' : '') + (left % 60);
+    $('#clock').textContent = fmt(left);
     $('#dfill').style.strokeDashoffset = String(CIRC * (1 - left / DUR));
   }
   function newPrompt() { $('#prompt').textContent = PROMPTS[Math.floor(Math.random() * PROMPTS.length)]; }
@@ -1129,7 +1269,14 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
     if ($('#prompt').textContent.indexOf('Tap play') === 0) newPrompt();
     running = true; $('#cstate').textContent = 'Writing'; this.innerHTML = svg(I.pause);
     markDay(); save(); tap();
-    tick = setInterval(function () { left--; paintClock(); if (left <= 0) { halt('Time'); tap('error'); toast('Pens down.'); } }, 1000);
+    tick = setInterval(function () {
+      left--; paintClock();
+      if (current !== 'drill') updateLive(fmt(left));
+      if (left <= 0) {
+        halt('Time'); tap('error'); clearLive();
+        say({ icon: I.hand, title: 'Pens down', sub: 'Now check what you wrote', hold: 3200 });
+      }
+    }, 1000);
   });
   $('#reset').addEventListener('click', function () { halt('Ready'); left = DUR; paintClock(); });
   $('#newp').addEventListener('click', function () { newPrompt(); halt('Ready'); left = DUR; paintClock(); });
@@ -1152,7 +1299,7 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
   $('#cdPrev').addEventListener('click', cPrev);
   $('#shuf').addEventListener('click', function () {
     for (var i = order.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = order[i]; order[i] = order[j]; order[j] = t; }
-    cIdx = 0; showCard(); tap('confirm'); toast('Shuffled');
+    cIdx = 0; showCard(); tap('confirm'); say({ icon: I.dice, title: 'Shuffled', sub: order.length + ' cards' });
   });
   swipe($('#cdDeck'), cPrev, cNext);
   showCard();
@@ -1185,12 +1332,22 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
     tabsEl.querySelectorAll('[data-tab]').forEach(function (b) { b.setAttribute('aria-selected', b.dataset.tab === id ? 'true' : 'false'); });
     document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('on'); });
     $('#v-' + id).classList.add('on');
+    if (running && id !== 'drill') {
+      live({ icon: I.timer, title: 'Drill running', clock: fmt(left),
+             action: { label: 'Back', fn: function () { go('drill'); } } });
+    } else { clearLive(); }
     var t = TABS.filter(function (x) { return x.id === id; })[0];
     $('#pageTitle').textContent = t.title; $('#pageSub').textContent = t.sub;
     $('#eyebrow').textContent = t.eyebrow; $('#topTitle').textContent = t.title;
     moveSel();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (id === 'you') paint();
+    if (id === 'you') {
+      paint();
+      var shaky = Object.keys(store.items).filter(function (k) { return store.items[k].c === 1; }).length;
+      if (shaky >= 3 && once('redo' + shaky)) {
+        say({ icon: I.bulb, title: shaky + ' on your redo list', sub: 'Clear these before new stages' });
+      }
+    }
   }
   window.addEventListener('resize', moveSel);
 
@@ -1233,6 +1390,12 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
   scrim.addEventListener('click', closeSheet);
   $('#sheetClose').addEventListener('click', closeSheet);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSheet(); });
+  setTimeout(function () {
+    if (Object.keys(store.items).length >= 2 && once('sheetTip')) {
+      say({ icon: I.bulb, title: 'Triple tap Write', sub: 'Opens the strategy', hold: 4200 });
+    }
+  }, 9000);
+
   var taps = 0, tapT = null;
   tabsEl.querySelector('[data-tab="write"]').addEventListener('click', function () {
     taps++; clearTimeout(tapT); tapT = setTimeout(function () { taps = 0; }, 700);
@@ -1264,7 +1427,8 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'java-grind-' + today() + '.json';
-    a.click(); URL.revokeObjectURL(a.href); toast('Exported');
+    a.click(); URL.revokeObjectURL(a.href); tap('confirm');
+    say({ icon: I.save, title: 'Backup saved', sub: 'Keep it somewhere safe' });
   });
   $('#impBtn').addEventListener('click', function () { $('#imp').click(); });
   $('#imp').addEventListener('change', function (e) {
@@ -1277,18 +1441,66 @@ h2.sec { font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; 
         store = data;
         if (!store.days) store.days = [];
         if (!store.reps) store.reps = 0;
-        save(); render(); toast('Restored');
-      } catch (err) { toast('That file did not look right'); }
+        save(); render(); tap('confirm');
+        say({ icon: I.check, title: 'Progress restored', sub: Object.keys(store.items).length + ' exercises back' });
+      } catch (err) { tap('error'); say({ icon: I.warn, title: 'That file did not look right', sub: 'Needs a Java Grind export' }); }
     };
     fr.readAsText(f);
   });
   $('#wipe').addEventListener('click', function () {
     if (!confirm('Wipe all progress? Export first if you want a backup.')) return;
-    store = { items: {}, days: [], reps: 0 }; save(); render(); toast('Cleared');
+    store = { items: {}, days: [], reps: 0, log: {}, seen: {} }; save(); render(); tap('error');
+    say({ icon: I.undo, title: 'Everything cleared', sub: 'Fresh start' });
   });
 
   /* ---------- go ---------- */
+  /* ---------- welcome ---------- */
+  function firstUnfinished() {
+    for (var i = 0; i < STAGES.length; i++) {
+      if (locked(STAGES[i])) continue;
+      for (var j = 0; j < STAGES[i].ex.length; j++) {
+        if (!store.items[STAGES[i].ex[j].id]) return { s: i, name: STAGES[i].name };
+      }
+    }
+    return null;
+  }
+  function openStage(i) {
+    go('write');
+    setTimeout(function () {
+      var w = document.querySelectorAll('#stages .stage')[i];
+      if (!w) return;
+      if (!w.classList.contains('open')) w.querySelector('.row').click();
+      w.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 220);
+  }
+  function welcome() {
+    var days = store.days.slice(), n = streak(), done = Object.keys(store.items).length;
+    var yest = new Date(); yest.setDate(yest.getDate() - 1);
+    var wasYesterday = days.indexOf(yest.toISOString().slice(0, 10)) !== -1;
+    var next = firstUnfinished();
+    var jump = next ? { label: 'Open', fn: function () { openStage(next.s); } } : null;
+
+    if (!done && days.length <= 1) {
+      say({ icon: I.wave, title: 'Start here', sub: 'Stage one, first exercise', hold: 5000,
+            action: { label: 'Go', fn: function () { openStage(0); } } });
+      return;
+    }
+    if (n >= 2) {
+      say({ icon: I.flame, title: n + ' day streak', sub: next ? 'Next up: ' + next.name : 'Course finished', hold: 4600, action: jump });
+    } else if (wasYesterday) {
+      say({ icon: I.flame, title: 'Keep the streak', sub: 'One exercise does it', hold: 4600, action: jump });
+    } else if (days.length > 1) {
+      say({ icon: I.wave, title: 'Welcome back', sub: done + ' of ' + TOTAL + ' written', hold: 4600, action: jump });
+    }
+  }
+
+  window.addEventListener('offline', function () {
+    say({ icon: I.cloud, title: 'Offline', sub: 'Everything here still works' });
+  });
+
   render(); markDay(); save();
+  setTimeout(welcome, 700);
+  setTimeout(placeIsland, 100);
   requestAnimationFrame(function () { moveSel(); moveRead(); moveDrill(); });
 })();
 </script>
