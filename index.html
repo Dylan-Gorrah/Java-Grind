@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Java Grind — Offline Practice</title>
+<script>try{var t=localStorage.getItem('javaGrind.theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
+<meta name="description" content="Offline Java practice document. Grind the fundamentals, track progress and confidence, no internet needed." />
+<style>
+/* ============ TOKENS ============ */
+:root {
+  --bg: #f7f4ef;
+  --bg-2: #fffefb;
+  --bg-3: #efe9e1;
+  --fg: #2a211c;
+  --muted: #6b5f57;
+  --dim: #8a7d73;
+  --pink: #b04a70;
+  --pink-soft: rgba(176, 74, 112, 0.10);
+  --pink-edge: rgba(176, 74, 112, 0.28);
+  --on-pink: #fffefb;
+  --line: #e5ddd3;
+  --line-2: #d3c7b9;
+  --shadow-s: 0 1px 2px rgba(58, 42, 32, 0.05), 0 2px 8px rgba(58, 42, 32, 0.04);
+  --shadow-m: 0 2px 6px rgba(58, 42, 32, 0.07), 0 12px 28px rgba(58, 42, 32, 0.07);
+  --glass: rgba(255, 254, 251, 0.78);
+
+  --r-s: 10px;
+  --r-m: 16px;
+  --r-l: 22px;
+  --r-pill: 999px;
+
+  --fast: 180ms;
+  --mid: 260ms;
+  --slow: 420ms;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --spring: cubic-bezier(0.34, 1.42, 0.64, 1);
+}
+[data-theme="dark"] {
+  --bg: #1a1310;
+  --bg-2: #241a15;
+  --bg-3: #130e0c;
+  --fg: #f4ece5;
+  --muted: #a8968b;
+  --dim: #7a685e;
+  --pink: #f0a3bd;
+  --pink-soft: rgba(240, 163, 189, 0.12);
+  --pink-edge: rgba(240, 163, 189, 0.30);
+  --on-pink: #1a1310;
+  --line: #33251f;
+  --line-2: #45332b;
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-m: 0 2px 6px rgba(0, 0, 0, 0.35), 0 14px 32px rgba(0, 0, 0, 0.45);
+  --glass: rgba(36, 26, 21, 0.78);
+}
+
+/* ============ BASE ============ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-sans-serif, system-ui, "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  transition: background var(--slow) var(--ease), color var(--slow) var(--ease);
+  padding-bottom: 4rem;
+}
+h1, h2, h3 { font-family: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif; font-weight: 500; letter-spacing: -0.015em; line-height: 1.2; }
+code, pre, .mono { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+::selection { background: var(--pink); color: var(--on-pink); }
+:focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; border-radius: var(--r-s); }
+
+.wrap { width: min(100% - 1.6rem, 880px); margin-inline: auto; }
+.muted { color: var(--muted); }
+.tiny { font-size: 0.78rem; letter-spacing: 0.02em; }
+
+/* ============ HEADER ============ */
+header {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--line);
+  transition: background var(--slow) var(--ease), border-color var(--slow) var(--ease);
+}
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 58px; }
+.brand { display: flex; align-items: center; gap: 0.6rem; }
+.brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pink); flex: none; }
+.brand b { font-family: ui-serif, Georgia, serif; font-weight: 500; font-size: 1.05rem; letter-spacing: -0.01em; }
+.badge {
+  font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+  border: 1px solid var(--line-2); color: var(--muted);
+  padding: 0.2rem 0.55rem; border-radius: var(--r-pill);
+}
+.iconbtn {
+  width: 40px; height: 40px; border-radius: var(--r-pill);
+  display: grid; place-items: center; color: var(--muted);
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease), transform var(--mid) var(--spring);
+}
+.iconbtn:hover { background: var(--bg-3); color: var(--fg); }
+.iconbtn:active { transform: scale(0.92); }
+.iconbtn svg { width: 18px; height: 18px; }
+#sun { display: none; }
+[data-theme="dark"] #sun { display: block; }
+[data-theme="dark"] #moon { display: none; }
+
+/* nav pills */
+.nav { position: relative; display: flex; gap: 0.25rem; padding: 0.3rem; margin-bottom: 0.7rem;
+  background: var(--bg-3); border-radius: var(--r-pill); overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+#pillbar {
+  position: absolute; top: 0.3rem; bottom: 0.3rem; left: 0; border-radius: var(--r-pill);
+  background: var(--bg-2); box-shadow: var(--shadow-s);
+  transition: transform var(--mid) var(--ease), width var(--mid) var(--ease);
+  z-index: 0;
+}
+.nav button {
+  position: relative; z-index: 1; flex: 1 0 auto; white-space: nowrap;
+  padding: 0.5rem 1rem; border-radius: var(--r-pill); font-size: 0.88rem; font-weight: 500;
+  color: var(--muted); transition: color var(--fast) var(--ease);
+  min-height: 40px;
+}
+.nav button[aria-selected="true"] { color: var(--fg); }
+
+/* ============ VIEWS ============ */
+.view { display: none; }
+.view.on { display: block; animation: slideIn var(--mid) var(--ease); }
+@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+section.block { padding-top: 1.6rem; }
+h2.title { font-size: 1.5rem; margin-bottom: 0.35rem; }
+.lede { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.2rem; }
+
+/* cards */
+.card {
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-m);
+  box-shadow: var(--shadow-s); padding: 1.1rem 1.2rem;
+  transition: box-shadow var(--mid) var(--ease), border-color var(--mid) var(--ease), background var(--slow) var(--ease);
+}
+.tips { display: grid; gap: 0.55rem; margin-bottom: 1.4rem; }
+.tips li { list-style: none; display: grid; grid-template-columns: auto 1fr; gap: 0.65rem; align-items: start; font-size: 0.9rem; color: var(--muted); }
+.tips svg { width: 15px; height: 15px; color: var(--pink); margin-top: 0.28rem; flex: none; }
+
+/* stage */
+.stage { margin-bottom: 0.9rem; }
+.stage-head {
+  width: 100%; display: grid; grid-template-columns: auto 1fr auto; gap: 0.9rem; align-items: center;
+  padding: 1rem 1.15rem; border-radius: var(--r-m); background: var(--bg-2);
+  border: 1px solid var(--line); box-shadow: var(--shadow-s); text-align: left;
+  transition: box-shadow var(--mid) var(--ease), transform var(--mid) var(--spring), border-color var(--mid) var(--ease);
+}
+.stage-head:hover { box-shadow: var(--shadow-m); }
+.stage-head:active { transform: scale(0.995); }
+.stage.open .stage-head { border-color: var(--pink-edge); }
+.ring { width: 38px; height: 38px; flex: none; position: relative; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 3.5; }
+.ring .t { stroke: var(--line); }
+.ring .f { stroke: var(--pink); stroke-linecap: round; stroke-dasharray: 100.5; transition: stroke-dashoffset var(--slow) var(--ease); }
+.ring b { position: absolute; inset: 0; display: grid; place-content: center; font-size: 0.62rem; font-weight: 600; color: var(--muted); }
+.stage-head h3 { font-size: 1.06rem; }
+.stage-head .sub { font-size: 0.8rem; color: var(--muted); }
+.chev { color: var(--dim); transition: transform var(--mid) var(--spring); }
+.chev svg { width: 18px; height: 18px; display: block; }
+.stage.open .chev { transform: rotate(90deg); }
+.stage.locked .stage-head { opacity: 0.62; }
+
+.stage-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--slow) var(--ease); }
+.stage.open .stage-body { grid-template-rows: 1fr; }
+.stage-body > div { overflow: hidden; }
+.ex-list { display: grid; gap: 0.6rem; padding: 0.6rem 0 0.2rem; }
+
+/* exercise */
+.ex { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-m); padding: 1rem 1.1rem; }
+.ex.done { border-color: var(--pink-edge); background: var(--pink-soft); }
+.ex-top { display: flex; align-items: baseline; gap: 0.6rem; }
+.ex-n { font-size: 0.72rem; font-weight: 600; color: var(--pink); letter-spacing: 0.06em; }
+.ex h4 { font-size: 0.98rem; font-weight: 600; letter-spacing: -0.01em; }
+.ex .task { font-size: 0.92rem; color: var(--muted); margin-top: 0.35rem; }
+.ex .tip { font-size: 0.84rem; color: var(--dim); margin-top: 0.5rem; display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; align-items: start; }
+.ex .tip svg { width: 13px; height: 13px; margin-top: 0.3rem; color: var(--pink); }
+.ex-acts { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.85rem; }
+.chip {
+  font-size: 0.8rem; font-weight: 500; padding: 0.42rem 0.85rem; border-radius: var(--r-pill);
+  border: 1px solid var(--line-2); color: var(--muted); min-height: 36px;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease), border-color var(--fast) var(--ease), transform var(--mid) var(--spring);
+}
+.chip:hover { background: var(--bg-3); color: var(--fg); }
+.chip:active { transform: scale(0.94); }
+.chip.on { background: var(--pink); border-color: var(--pink); color: var(--on-pink); }
+.chip svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 0.35rem; }
+.conf-label { font-size: 0.76rem; color: var(--dim); margin-right: 0.15rem; }
+.ref { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--slow) var(--ease); margin-top: 0.2rem; }
+.ref.open { grid-template-rows: 1fr; }
+.ref > div { overflow: hidden; }
+.ref pre {
+  background: var(--bg-3); border: 1px solid var(--line); border-radius: var(--r-s);
+  padding: 0.9rem 1rem; margin-top: 0.7rem; overflow-x: auto;
+  font-size: 0.8rem; line-height: 1.65; white-space: pre;
+}
+
+/* drill */
+.dial { width: 150px; height: 150px; position: relative; margin: 0 auto; }
+.dial svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.dial circle { fill: none; stroke-width: 4; }
+.dial .t { stroke: var(--line); }
+.dial .f { stroke: var(--pink); stroke-linecap: round; stroke-dasharray: 439.8; transition: stroke-dashoffset 980ms linear; }
+.dial .read { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.dial .read b { font-size: 1.9rem; font-weight: 500; font-variant-numeric: tabular-nums; display: block; }
+.dial .read span { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.promptbox { background: var(--bg-3); border-radius: var(--r-m); padding: 1rem 1.1rem; margin: 1.1rem 0; min-height: 84px; display: flex; align-items: center; }
+.promptbox p { font-size: 0.92rem; }
+.btn {
+  display: inline-flex; align-items: center; gap: 0.45rem; min-height: 44px;
+  padding: 0.6rem 1.2rem; border-radius: var(--r-pill); font-size: 0.9rem; font-weight: 500;
+  background: var(--bg-3); color: var(--fg);
+  transition: background var(--fast) var(--ease), transform var(--mid) var(--spring), opacity var(--fast) var(--ease);
+}
+.btn:hover { opacity: 0.85; }
+.btn:active { transform: scale(0.95); }
+.btn.primary { background: var(--pink); color: var(--on-pink); }
+.btn svg { width: 15px; height: 15px; }
+.row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* deck */
+.deck { perspective: 1400px; margin: 1rem 0; }
+.flip { position: relative; min-height: 250px; transform-style: preserve-3d; transition: transform var(--slow) var(--ease); cursor: pointer; }
+.flip.on { transform: rotateY(180deg); }
+.face {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-l); box-shadow: var(--shadow-s);
+  padding: 1.3rem; display: flex; flex-direction: column; justify-content: center; overflow: auto;
+}
+.face.b { transform: rotateY(180deg); background: var(--bg-3); }
+.face .lbl { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pink); margin-bottom: 0.8rem; }
+.face .q { font-family: ui-serif, Georgia, serif; font-size: 1.25rem; font-weight: 500; line-height: 1.3; }
+.face .hint { font-size: 0.74rem; color: var(--dim); margin-top: 1.1rem; }
+.face pre { font-size: 0.78rem; line-height: 1.65; white-space: pre; }
+
+/* progress */
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1rem; }
+@media (min-width: 620px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+.stat { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-m); padding: 0.9rem 1rem; box-shadow: var(--shadow-s); }
+.stat b { display: block; font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.76rem; color: var(--muted); }
+.barrow { display: grid; grid-template-columns: 1fr auto; gap: 0.6rem; align-items: center; margin-bottom: 0.8rem; }
+.barrow .nm { font-size: 0.86rem; }
+.track { height: 7px; background: var(--bg-3); border-radius: var(--r-pill); overflow: hidden; margin-top: 0.35rem; }
+.fillbar { height: 100%; background: var(--pink); border-radius: var(--r-pill); width: 0; transition: width var(--slow) var(--ease); }
+.pct { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.redo { display: grid; gap: 0.4rem; margin-top: 0.6rem; }
+.redo li { list-style: none; font-size: 0.88rem; color: var(--muted); padding: 0.55rem 0.8rem; background: var(--bg-3); border-radius: var(--r-s); }
+.redo li b { color: var(--fg); font-weight: 600; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 1.5rem; transform: translate(-50%, 200%);
+  background: var(--fg); color: var(--bg); padding: 0.7rem 1.2rem; border-radius: var(--r-pill);
+  font-size: 0.85rem; box-shadow: var(--shadow-m); z-index: 90;
+  transition: transform var(--slow) var(--spring);
+}
+.toast.up { transform: translate(-50%, 0); }
+
+.foot { margin-top: 2.5rem; padding-top: 1.4rem; border-top: 1px solid var(--line); font-size: 0.8rem; color: var(--dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  .view.on { animation: fadeIn 0.01ms; }
+  @keyframes fadeIn { to { opacity: 1; } }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="bar">
+      <div class="brand">
+        <span class="dot"></span>
+        <b>Java Grind</b>
+        <span class="badge">Offline</span>
+      </div>
+      <button class="iconbtn" id="theme" aria-label="Switch theme">
+        <svg id="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg>
+      </button>
+    </div>
+    <nav class="nav" role="tablist" aria-label="Sections">
+      <span id="pillbar"></span>
+      <button role="tab" aria-selected="true" data-view="road">Roadmap</button>
+      <button role="tab" aria-selected="false" data-view="drill">Drill</button>
+      <button role="tab" aria-selected="false" data-view="cards">Cards</button>
+      <button role="tab" aria-selected="false" data-view="prog">Progress</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ROADMAP -->
+  <section class="view on block" id="view-road">
+    <h2 class="title">Work top to bottom</h2>
+    <p class="lede">Six stages. Finish one before starting the next. JFrame unlocks at the end.</p>
+
+    <ul class="tips">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>Read the task, close this page, write it in your IDE from memory.</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>Only open the reference after you have tried. Compare, then retype it yourself.</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>Rate honestly. Anything you mark Shaky comes back on your redo list.</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>Three exercises a day beats twenty on a Sunday. Autocomplete off.</span></li>
+    </ul>
+
+    <div id="stages"></div>
+  </section>
+
+  <!-- DRILL -->
+  <section class="view block" id="view-drill">
+    <h2 class="title">90 second drill</h2>
+    <p class="lede">Random prompt, short clock, no reference. Stop when it hits zero.</p>
+
+    <div class="card">
+      <div class="dial">
+        <svg viewBox="0 0 150 150" aria-hidden="true">
+          <circle class="t" cx="75" cy="75" r="70"></circle>
+          <circle class="f" id="dfill" cx="75" cy="75" r="70"></circle>
+        </svg>
+        <div class="read"><b id="clock">1:30</b><span id="cstate">Ready</span></div>
+      </div>
+      <div class="promptbox"><p id="prompt">Press start for a prompt.</p></div>
+      <div class="row">
+        <button class="btn primary" id="start">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg><span id="startTxt">Start</span>
+        </button>
+        <button class="btn" id="newp">New prompt</button>
+        <button class="btn" id="reset">Reset</button>
+      </div>
+      <p class="tiny muted" style="margin-top:0.9rem">Getting it wrong fast is the point. Freezing is what you are training away.</p>
+    </div>
+  </section>
+
+  <!-- CARDS -->
+  <section class="view block" id="view-cards">
+    <h2 class="title">Syntax recall</h2>
+    <p class="lede">Type the answer in your IDE first, then flip. Aim for 15 seconds a card.</p>
+
+    <div class="deck">
+      <div class="flip" id="flip" tabindex="0" role="button" aria-label="Flip card">
+        <div class="face">
+          <span class="lbl">Java</span>
+          <p class="q" id="cq">Loading</p>
+          <span class="hint">Tap or press Enter to reveal</span>
+        </div>
+        <div class="face b">
+          <span class="lbl">Reference</span>
+          <pre><code id="ca"></code></pre>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <span class="tiny muted" id="ccount">01 / 14</span>
+      <div class="row">
+        <button class="btn" id="prev">Back</button>
+        <button class="btn" id="shuf">Shuffle</button>
+        <button class="btn primary" id="next">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="view block" id="view-prog">
+    <h2 class="title">Your progress</h2>
+    <p class="lede">Saved in this browser automatically. Export a backup before you clear anything.</p>
+
+    <div class="stats">
+      <div class="stat"><b id="sDone">0</b><span>Exercises done</span></div>
+      <div class="stat"><b id="sPct">0%</b><span>Course complete</span></div>
+      <div class="stat"><b id="sStreak">0</b><span>Day streak</span></div>
+      <div class="stat"><b id="sSolid">0</b><span>Rated solid</span></div>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem">
+      <h3 style="font-size:1.05rem;margin-bottom:0.9rem">By stage</h3>
+      <div id="bars"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem">
+      <h3 style="font-size:1.05rem">Redo these</h3>
+      <p class="tiny muted" style="margin-top:0.2rem">Anything you rated Shaky. Clear this list before moving on.</p>
+      <ul class="redo" id="redo"></ul>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:1.05rem;margin-bottom:0.8rem">Backup</h3>
+      <div class="row">
+        <button class="btn" id="exp">Export progress</button>
+        <button class="btn" id="impBtn">Import file</button>
+        <input type="file" id="imp" accept="application/json" hidden />
+        <button class="btn" id="wipe">Reset all</button>
+      </div>
+    </div>
+
+    <p class="foot">Everything runs from this one file. No internet, no accounts, no tracking. Keep a copy of your export somewhere safe.</p>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============ DATA ============ */
+  var STAGES = [
+    {
+      id: 's1', name: 'Fundamentals', sub: 'Loops, arrays, methods, input',
+      ex: [
+        { id: 'f1', t: 'Total an array', k: 'Write a method that takes an int[] and returns the sum.', tip: 'Enhanced for loop. No index needed.',
+          c: 'public static int total(int[] values) {\n    int sum = 0;\n    for (int value : values) {\n        sum += value;\n    }\n    return sum;\n}' },
+        { id: 'f2', t: 'Average with a guard', k: 'Return the average of an int[], and 0 if the array is empty.', tip: 'Guard clause first, then the work. Cast before you divide.',
+          c: 'public static double average(int[] values) {\n    if (values.length == 0) {\n        return 0;\n    }\n    int sum = 0;\n    for (int value : values) {\n        sum += value;\n    }\n    return (double) sum / values.length;\n}' },
+        { id: 'f3', t: 'Menu loop', k: 'Read an int choice from the user and keep looping until they enter 0.', tip: 'nextInt leaves the newline behind. Call nextLine after it.',
+          c: 'Scanner sc = new Scanner(System.in);\nint choice;\ndo {\n    System.out.println("1. Add  2. List  0. Quit");\n    System.out.print("Choice: ");\n    choice = sc.nextInt();\n    sc.nextLine();\n\n    switch (choice) {\n        case 1 -> add();\n        case 2 -> list();\n        case 0 -> System.out.println("Bye.");\n        default -> System.out.println("Invalid option.");\n    }\n} while (choice != 0);' },
+        { id: 'f4', t: 'Formatted output', k: 'Print a name left aligned in 15 spaces and a mark to two decimals.', tip: 'printf, not println. %n at the end, not \\n.',
+          c: 'System.out.printf("%-15s %6.2f%n", name, mark);\n\n// or build the string first\nString row = String.format("%-15s %6.2f", name, mark);' },
+        { id: 'f5', t: 'Largest value and its position', k: 'Find the biggest number in an int[] and the index it sits at.', tip: 'Start with index 0 as the winner, then compare from index 1.',
+          c: 'int best = 0;\nfor (int i = 1; i < values.length; i++) {\n    if (values[i] > values[best]) {\n        best = i;\n    }\n}\nSystem.out.println("Highest " + values[best] + " at " + best);' },
+        { id: 'f6', t: 'Walk a 2D array', k: 'Sum every value in an int[][] grid.', tip: 'Outer loop is rows. grid[row].length, not grid.length.',
+          c: 'int total = 0;\nfor (int row = 0; row < grid.length; row++) {\n    for (int col = 0; col < grid[row].length; col++) {\n        total += grid[row][col];\n    }\n}' }
+      ]
+    },
+    {
+      id: 's2', name: 'Objects', sub: 'Classes, constructors, interfaces',
+      ex: [
+        { id: 'o1', t: 'A class with private fields', k: 'Write a Student class with a private name and mark, a constructor and getters.', tip: 'Fields private, constructor sets them with this.',
+          c: 'public class Student {\n    private String name;\n    private double mark;\n\n    public Student(String name, double mark) {\n        this.name = name;\n        this.mark = mark;\n    }\n\n    public String getName() { return name; }\n    public double getMark() { return mark; }\n}' },
+        { id: 'o2', t: 'Override toString', k: 'Make printing a Student show its name and mark to two decimals.', tip: 'Always add @Override. It catches typos in the method name.',
+          c: '@Override\npublic String toString() {\n    return String.format("%s (%.2f)", name, mark);\n}' },
+        { id: 'o3', t: 'Interface and implementation', k: 'Write an interface Payable with one method, and a class that implements it.', tip: 'Interface methods have no body. The class must override all of them.',
+          c: 'public interface Payable {\n    double getPayment();\n}\n\npublic class Tutor implements Payable {\n    private double hours, rate;\n\n    @Override\n    public double getPayment() {\n        return hours * rate;\n    }\n}' },
+        { id: 'o4', t: 'Abstract class', k: 'Write an abstract Shape with an abstract area() and a Circle that extends it.', tip: 'Abstract classes can hold fields and finished methods. Interfaces normally do not.',
+          c: 'public abstract class Shape {\n    public abstract double area();\n\n    public String describe() {\n        return getClass().getSimpleName() + " area " + area();\n    }\n}\n\npublic class Circle extends Shape {\n    private double r;\n\n    public Circle(double r) { this.r = r; }\n\n    @Override\n    public double area() {\n        return Math.PI * r * r;\n    }\n}' },
+        { id: 'o5', t: 'Inheritance with super', k: 'Write a PartTimeStudent that extends Student and adds a subject count.', tip: 'super(...) must be the first line of the constructor.',
+          c: 'public class PartTimeStudent extends Student {\n    private int subjects;\n\n    public PartTimeStudent(String name, double mark, int subjects) {\n        super(name, mark);\n        this.subjects = subjects;\n    }\n}' },
+        { id: 'o6', t: 'Static counter', k: 'Count how many Student objects have been created.', tip: 'static belongs to the class, not the object. Increment it in the constructor.',
+          c: 'private static int count = 0;\n\npublic Student(String name) {\n    this.name = name;\n    count++;\n}\n\npublic static int getCount() {\n    return count;\n}' }
+      ]
+    },
+    {
+      id: 's3', name: 'Collections', sub: 'Lists, maps, sorting, searching',
+      ex: [
+        { id: 'c1', t: 'ArrayList basics', k: 'Create a list of Students, add three, then print each one.', tip: 'Declare as List, create as ArrayList.',
+          c: 'List<Student> students = new ArrayList<>();\nstudents.add(new Student("Thabo", 74));\nstudents.add(new Student("Ayesha", 68));\n\nfor (Student s : students) {\n    System.out.println(s);\n}' },
+        { id: 'c2', t: 'Count with a HashMap', k: 'Count how many times each word appears in a sentence.', tip: 'getOrDefault saves you an if statement.',
+          c: 'Map<String, Integer> counts = new HashMap<>();\nfor (String word : text.split("\\\\s+")) {\n    counts.put(word, counts.getOrDefault(word, 0) + 1);\n}' },
+        { id: 'c3', t: 'Loop a map', k: 'Print every key and value in a Map.', tip: 'entrySet gives you both at once. keySet makes you look each one up again.',
+          c: 'for (Map.Entry<String, Integer> entry : counts.entrySet()) {\n    System.out.println(entry.getKey() + ": " + entry.getValue());\n}' },
+        { id: 'c4', t: 'Sort by a field', k: 'Sort a list of Students by mark, highest first.', tip: 'Comparator.comparingDouble then reversed().',
+          c: 'students.sort(Comparator.comparingDouble(Student::getMark).reversed());\n\n// by name instead\nstudents.sort(Comparator.comparing(Student::getName));' },
+        { id: 'c5', t: 'Search a list', k: 'Find a Student by name and return null if nobody matches.', tip: 'equalsIgnoreCase for names. Never == on Strings.',
+          c: 'public static Student find(List<Student> students, String name) {\n    for (Student s : students) {\n        if (s.getName().equalsIgnoreCase(name)) {\n            return s;\n        }\n    }\n    return null;\n}' },
+        { id: 'c6', t: 'Filter into a new list', k: 'Build a list of only the Students who passed with 50 or more.', tip: 'New list, loop, if, add. Do it the long way before you touch streams.',
+          c: 'List<Student> passed = new ArrayList<>();\nfor (Student s : students) {\n    if (s.getMark() >= 50) {\n        passed.add(s);\n    }\n}' }
+      ]
+    },
+    {
+      id: 's4', name: 'Errors and files',
+      sub: 'try, catch, custom exceptions, IO',
+      ex: [
+        { id: 'e1', t: 'Catch a bad number', k: 'Parse a String to int and return -1 if it is not a number.', tip: 'Catch the specific exception, never plain Exception.',
+          c: 'public static int safeParse(String input) {\n    try {\n        return Integer.parseInt(input);\n    } catch (NumberFormatException e) {\n        return -1;\n    }\n}' },
+        { id: 'e2', t: 'Validation loop', k: 'Keep asking for a mark until the user types a valid number between 0 and 100.', tip: 'Loop until valid. Read as a line, then parse.',
+          c: 'double mark;\nwhile (true) {\n    System.out.print("Mark: ");\n    try {\n        mark = Double.parseDouble(sc.nextLine());\n        if (mark >= 0 && mark <= 100) break;\n        System.out.println("Must be 0 to 100.");\n    } catch (NumberFormatException e) {\n        System.out.println("Numbers only.");\n    }\n}' },
+        { id: 'e3', t: 'Your own exception', k: 'Write an InvalidMarkException and throw it when a mark is out of range.', tip: 'Extend Exception for checked, RuntimeException for unchecked.',
+          c: 'public class InvalidMarkException extends Exception {\n    public InvalidMarkException(String message) {\n        super(message);\n    }\n}\n\npublic void setMark(double mark) throws InvalidMarkException {\n    if (mark < 0 || mark > 100) {\n        throw new InvalidMarkException("Mark out of range: " + mark);\n    }\n    this.mark = mark;\n}' },
+        { id: 'e4', t: 'Read a file safely', k: 'Read a text file line by line into a List<String>.', tip: 'try-with-resources closes the reader for you. No finally block needed.',
+          c: 'List<String> lines = new ArrayList<>();\ntry (BufferedReader br = new BufferedReader(new FileReader("data.txt"))) {\n    String line;\n    while ((line = br.readLine()) != null) {\n        lines.add(line);\n    }\n} catch (IOException e) {\n    System.out.println("Could not read file: " + e.getMessage());\n}' },
+        { id: 'e5', t: 'Write a file', k: 'Write every Student in a list to a text file, one per line.', tip: 'PrintWriter inside try-with-resources. true on FileWriter appends.',
+          c: 'try (PrintWriter out = new PrintWriter(new FileWriter("students.txt"))) {\n    for (Student s : students) {\n        out.println(s.getName() + "," + s.getMark());\n    }\n} catch (IOException e) {\n    System.out.println("Could not write file: " + e.getMessage());\n}' }
+      ]
+    },
+    {
+      id: 's5', name: 'Build a console app', sub: 'The whole thing, end to end',
+      ex: [
+        { id: 'a1', t: 'App skeleton', k: 'Write a class with a list, a Scanner and a menu loop calling empty methods.', tip: 'Get the shell running first. Fill the methods after.',
+          c: 'public class StudentApp {\n    private static final List<Student> students = new ArrayList<>();\n    private static final Scanner sc = new Scanner(System.in);\n\n    public static void main(String[] args) {\n        int choice;\n        do {\n            showMenu();\n            choice = readInt("Choice: ");\n            switch (choice) {\n                case 1 -> add();\n                case 2 -> report();\n                case 3 -> search();\n                case 4 -> delete();\n                case 0 -> System.out.println("Bye.");\n                default -> System.out.println("Invalid option.");\n            }\n        } while (choice != 0);\n    }\n}' },
+        { id: 'a2', t: 'Add a record', k: 'Read a name and mark from the user and add a new Student to the list.', tip: 'Validate before you construct the object.',
+          c: 'private static void add() {\n    System.out.print("Name: ");\n    String name = sc.nextLine().trim();\n\n    double mark = readDouble("Mark: ");\n    students.add(new Student(name, mark));\n    System.out.println("Added " + name + ".");\n}' },
+        { id: 'a3', t: 'Print a report', k: 'Print a header row and every student in a lined up table, with the average at the bottom.', tip: 'One printf for the header, one inside the loop, same widths.',
+          c: 'private static void report() {\n    if (students.isEmpty()) {\n        System.out.println("Nothing to show.");\n        return;\n    }\n\n    System.out.printf("%-15s %8s%n", "NAME", "MARK");\n    double total = 0;\n    for (Student s : students) {\n        System.out.printf("%-15s %8.2f%n", s.getName(), s.getMark());\n        total += s.getMark();\n    }\n    System.out.printf("%-15s %8.2f%n", "AVERAGE", total / students.size());\n}' },
+        { id: 'a4', t: 'Search and update', k: 'Find a student by name and let the user change the mark.', tip: 'Reuse your find method. Handle the null case first.',
+          c: 'private static void search() {\n    System.out.print("Name to find: ");\n    Student found = find(students, sc.nextLine().trim());\n\n    if (found == null) {\n        System.out.println("Not found.");\n        return;\n    }\n\n    System.out.println("Found: " + found);\n    found.setMark(readDouble("New mark: "));\n}' },
+        { id: 'a5', t: 'Delete with confirm', k: 'Remove a student after asking the user to confirm with y or n.', tip: 'removeIf is one line, but write the loop version too.',
+          c: 'private static void delete() {\n    System.out.print("Name to delete: ");\n    String name = sc.nextLine().trim();\n\n    System.out.print("Are you sure? (y/n): ");\n    if (!sc.nextLine().equalsIgnoreCase("y")) {\n        System.out.println("Cancelled.");\n        return;\n    }\n\n    boolean removed = students.removeIf(s -> s.getName().equalsIgnoreCase(name));\n    System.out.println(removed ? "Deleted." : "Not found.");\n}' }
+      ]
+    },
+    {
+      id: 's6', name: 'JFrame', sub: 'Unlocks when the first five are done', lockAfter: 5,
+      ex: [
+        { id: 'g1', t: 'A window on screen', k: 'Open an empty JFrame that closes the program when you close it.', tip: 'Set size before setVisible. Nothing shows without setVisible(true).',
+          c: 'JFrame frame = new JFrame("Student Manager");\nframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);\nframe.setSize(420, 320);\nframe.setLocationRelativeTo(null);\nframe.setVisible(true);' },
+        { id: 'g2', t: 'Panel with controls', k: 'Add a label, a text field and a button to the window.', tip: 'Components go on a JPanel, the panel goes on the frame.',
+          c: 'JPanel panel = new JPanel();\nJLabel label = new JLabel("Name:");\nJTextField nameField = new JTextField(15);\nJButton addButton = new JButton("Add");\n\npanel.add(label);\npanel.add(nameField);\npanel.add(addButton);\nframe.add(panel);' },
+        { id: 'g3', t: 'Make the button work', k: 'Show whatever is typed in the field when the button is clicked.', tip: 'Lambda instead of an anonymous class. Much shorter.',
+          c: 'addButton.addActionListener(e -> {\n    String name = nameField.getText().trim();\n    if (name.isEmpty()) {\n        JOptionPane.showMessageDialog(frame, "Enter a name first.");\n        return;\n    }\n    JOptionPane.showMessageDialog(frame, "Added " + name);\n    nameField.setText("");\n});' },
+        { id: 'g4', t: 'Lay it out properly', k: 'Put a form at the top, a list in the middle and buttons at the bottom.', tip: 'BorderLayout for the frame, GridLayout inside the form panel.',
+          c: 'frame.setLayout(new BorderLayout(8, 8));\n\nJPanel form = new JPanel(new GridLayout(2, 2, 6, 6));\nform.add(new JLabel("Name:"));\nform.add(nameField);\nform.add(new JLabel("Mark:"));\nform.add(markField);\n\nframe.add(form, BorderLayout.NORTH);\nframe.add(new JScrollPane(listArea), BorderLayout.CENTER);\nframe.add(buttonPanel, BorderLayout.SOUTH);' },
+        { id: 'g5', t: 'Show your list in the UI', k: 'Display every student in a JTextArea and refresh it after each add.', tip: 'Rebuild the whole text each time. Simpler than patching it.',
+          c: 'private void refresh() {\n    StringBuilder sb = new StringBuilder();\n    for (Student s : students) {\n        sb.append(String.format("%-15s %.2f%n", s.getName(), s.getMark()));\n    }\n    listArea.setText(sb.toString());\n}' }
+      ]
+    }
+  ];
+
+  var PROMPTS = [
+    'Method that returns the highest mark in an ArrayList of Students, or 0 if it is empty.',
+    'Class Book with private title and price, a constructor, getters and a toString.',
+    'Menu loop that keeps running until the user enters 0.',
+    'Read a file line by line and print each line with its line number.',
+    'Count how many times each letter appears in a word using a HashMap.',
+    'Interface Printable with one method, plus a class that implements it.',
+    'Sort a list of Students by name, then print them in a lined up table.',
+    'Safely parse user input to an int and ask again if it is not a number.',
+    'Method that returns a new list of only the items above a given value.',
+    'Sum every number in a 2D array and print the row totals as well.',
+    'Custom exception thrown when a mark is below 0 or above 100.',
+    'Swap two elements in an array without a library method.'
+  ];
+
+  var CARDS = [
+    ['Read a file line by line', 'try (BufferedReader br = new BufferedReader(new FileReader(path))) {\n    String line;\n    while ((line = br.readLine()) != null) {\n        lines.add(line);\n    }\n} catch (IOException e) {\n    System.out.println(e.getMessage());\n}'],
+    ['Loop an array', 'for (int value : values) {\n    total += value;\n}'],
+    ['Loop with an index', 'for (int i = 0; i < values.length; i++) {\n    System.out.println(i + ": " + values[i]);\n}'],
+    ['Read input from the user', 'Scanner sc = new Scanner(System.in);\nSystem.out.print("Name: ");\nString name = sc.nextLine();\nint age = sc.nextInt();\nsc.nextLine();'],
+    ['Two decimal places', 'System.out.printf("%.2f%n", mark);\nString s = String.format("%-15s %6.2f", name, mark);'],
+    ['Constructor and getter', 'public Student(String name) {\n    this.name = name;\n}\n\npublic String getName() {\n    return name;\n}'],
+    ['Switch on a menu choice', 'switch (choice) {\n    case 1 -> add();\n    case 2 -> list();\n    case 0 -> running = false;\n    default -> System.out.println("Invalid option.");\n}'],
+    ['New list and add', 'List<Student> students = new ArrayList<>();\nstudents.add(new Student("Thabo", 74));'],
+    ['HashMap count', 'counts.put(word, counts.getOrDefault(word, 0) + 1);'],
+    ['Loop a map', 'for (Map.Entry<String, Integer> e : counts.entrySet()) {\n    System.out.println(e.getKey() + ": " + e.getValue());\n}'],
+    ['Sort by a field', 'students.sort(Comparator.comparingDouble(Student::getMark).reversed());'],
+    ['Compare two Strings', 'if (name.equalsIgnoreCase(other)) {\n    // never use == on Strings\n}'],
+    ['Try and catch', 'try {\n    return Integer.parseInt(input);\n} catch (NumberFormatException e) {\n    return -1;\n}'],
+    ['Throw your own', 'if (mark < 0 || mark > 100) {\n    throw new InvalidMarkException("Out of range");\n}'],
+    ['Interface', 'public interface Payable {\n    double getPayment();\n}'],
+    ['Override', '@Override\npublic String toString() {\n    return name + " " + mark;\n}'],
+    ['Open a window', 'JFrame frame = new JFrame("App");\nframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);\nframe.setSize(400, 300);\nframe.setVisible(true);'],
+    ['Button click', 'button.addActionListener(e -> {\n    label.setText(field.getText());\n});']
+  ];
+
+  var LEVELS = [
+    { v: 1, label: 'Shaky' },
+    { v: 2, label: 'Getting there' },
+    { v: 3, label: 'Solid' }
+  ];
+
+  var TOTAL = STAGES.reduce(function (n, s) { return n + s.ex.length; }, 0);
+
+  /* ============ STORE ============ */
+  var KEY = 'javaGrind.v1';
+  var store = { items: {}, days: [], reps: 0 };
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { store = JSON.parse(raw); }
+    } catch (e) { /* file:// with storage blocked — memory only */ }
+    if (!store.items) store.items = {};
+    if (!store.days) store.days = [];
+    if (!store.reps) store.reps = 0;
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(store)); }
+    catch (e) { toast('Could not save. Use Export to keep a backup.'); }
+  }
+  function today() { return new Date().toISOString().slice(0, 10); }
+  function markDay() {
+    var d = today();
+    if (store.days.indexOf(d) === -1) { store.days.push(d); store.days.sort(); }
+  }
+  function streak() {
+    if (!store.days.length) return 0;
+    var n = 0, d = new Date();
+    for (;;) {
+      var iso = d.toISOString().slice(0, 10);
+      if (store.days.indexOf(iso) !== -1) { n++; d.setDate(d.getDate() - 1); }
+      else if (n === 0 && iso === today()) { d.setDate(d.getDate() - 1); }
+      else break;
+    }
+    return n;
+  }
+  load();
+
+  /* ============ HELPERS ============ */
+  var $ = function (s) { return document.querySelector(s); };
+  var toastEl = $('#toast'), toastT = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('up');
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { toastEl.classList.remove('up'); }, 2200);
+  }
+  function svg(path, w) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 1.8) + '" stroke-linecap="round" stroke-linejoin="round">' + path + '</svg>';
+  }
+  var ICON_CHECK = '<path d="M20 6L9 17l-5-5"/>';
+  var ICON_BULB = '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/>';
+  var ICON_CHEV = '<path d="M9 6l6 6-6 6"/>';
+  var ICON_EYE = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
+
+  function stageDone(st) {
+    return st.ex.filter(function (e) { return store.items[e.id]; }).length;
+  }
+  function stageLocked(st) {
+    if (!st.lockAfter) return false;
+    var need = 0, have = 0;
+    for (var i = 0; i < st.lockAfter && i < STAGES.length; i++) {
+      need += STAGES[i].ex.length;
+      have += stageDone(STAGES[i]);
+    }
+    return have < Math.ceil(need * 0.8);
+  }
+
+  /* ============ ROADMAP RENDER ============ */
+  var stagesEl = $('#stages');
+
+  function render() {
+    stagesEl.innerHTML = '';
+    STAGES.forEach(function (st, si) {
+      var locked = stageLocked(st);
+      var done = stageDone(st);
+      var pct = done / st.ex.length;
+
+      var wrap = document.createElement('div');
+      wrap.className = 'stage' + (locked ? ' locked' : '');
+
+      var head = document.createElement('button');
+      head.className = 'stage-head';
+      head.setAttribute('aria-expanded', 'false');
+      head.innerHTML =
+        '<span class="ring"><svg viewBox="0 0 40 40"><circle class="t" cx="20" cy="20" r="16"></circle>' +
+        '<circle class="f" cx="20" cy="20" r="16" style="stroke-dashoffset:' + (100.5 * (1 - pct)) + '"></circle></svg>' +
+        '<b>' + done + '/' + st.ex.length + '</b></span>' +
+        '<span><h3>' + (si + 1) + '. ' + st.name + '</h3><span class="sub">' +
+        (locked ? 'Locked — finish 80% of the stages above' : st.sub) + '</span></span>' +
+        '<span class="chev">' + svg(ICON_CHEV) + '</span>';
+
+      var body = document.createElement('div');
+      body.className = 'stage-body';
+      var inner = document.createElement('div');
+      var list = document.createElement('div');
+      list.className = 'ex-list';
+      inner.appendChild(list);
+      body.appendChild(inner);
+
+      if (!locked) {
+        st.ex.forEach(function (ex, i) { list.appendChild(exCard(st, ex, i)); });
+      } else {
+        var note = document.createElement('p');
+        note.className = 'tiny muted';
+        note.style.padding = '0.6rem 0.2rem';
+        note.textContent = 'Come back when the console app is behind you. Swing is easier once objects and lists are automatic.';
+        list.appendChild(note);
+      }
+
+      head.addEventListener('click', function () {
+        var open = wrap.classList.toggle('open');
+        head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      wrap.appendChild(head);
+      wrap.appendChild(body);
+      stagesEl.appendChild(wrap);
+    });
+    paintProgress();
+  }
+
+  function exCard(st, ex, i) {
+    var saved = store.items[ex.id];
+    var el = document.createElement('div');
+    el.className = 'ex' + (saved ? ' done' : '');
+
+    var chips = LEVELS.map(function (l) {
+      var on = saved && saved.c === l.v ? ' on' : '';
+      return '<button class="chip' + on + '" data-conf="' + l.v + '">' + l.label + '</button>';
+    }).join('');
+
+    el.innerHTML =
+      '<div class="ex-top"><span class="ex-n">' + (i + 1) + '</span><h4>' + ex.t + '</h4></div>' +
+      '<p class="task">' + ex.k + '</p>' +
+      '<p class="tip">' + svg(ICON_BULB, 1.6) + '<span>' + ex.tip + '</span></p>' +
+      '<div class="ex-acts">' +
+        '<button class="chip ref-btn">' + svg(ICON_EYE, 1.6) + 'Reference</button>' +
+        '<span class="conf-label">Felt:</span>' + chips +
+      '</div>' +
+      '<div class="ref"><div><pre><code></code></pre></div></div>';
+
+    el.querySelector('code').textContent = ex.c;
+
+    var ref = el.querySelector('.ref');
+    el.querySelector('.ref-btn').addEventListener('click', function () {
+      ref.classList.toggle('open');
+      this.classList.toggle('on');
+    });
+
+    el.querySelectorAll('[data-conf]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var v = parseInt(btn.getAttribute('data-conf'), 10);
+        var cur = store.items[ex.id];
+        if (cur && cur.c === v) {
+          delete store.items[ex.id];
+          toast('Unmarked');
+        } else {
+          store.items[ex.id] = { c: v, d: today(), r: (cur && cur.r ? cur.r + 1 : 1) };
+          store.reps++;
+          markDay();
+          toast(v === 1 ? 'Added to your redo list' : 'Logged. Next one.');
+        }
+        save();
+        var open = [];
+        document.querySelectorAll('.stage').forEach(function (s, idx) { if (s.classList.contains('open')) open.push(idx); });
+        render();
+        open.forEach(function (idx) {
+          var s = document.querySelectorAll('.stage')[idx];
+          if (s) { s.classList.add('open'); s.querySelector('.stage-head').setAttribute('aria-expanded', 'true'); }
+        });
+      });
+    });
+
+    return el;
+  }
+
+  /* ============ PROGRESS ============ */
+  function paintProgress() {
+    var done = Object.keys(store.items).length;
+    var solid = Object.keys(store.items).filter(function (k) { return store.items[k].c === 3; }).length;
+    $('#sDone').textContent = done;
+    $('#sPct').textContent = Math.round((done / TOTAL) * 100) + '%';
+    $('#sStreak').textContent = streak();
+    $('#sSolid').textContent = solid;
+
+    var bars = $('#bars');
+    bars.innerHTML = '';
+    STAGES.forEach(function (st, i) {
+      var d = stageDone(st);
+      var pct = Math.round((d / st.ex.length) * 100);
+      var row = document.createElement('div');
+      row.className = 'barrow';
+      row.innerHTML =
+        '<div><div class="nm">' + (i + 1) + '. ' + st.name + '</div>' +
+        '<div class="track"><span class="fillbar" style="width:' + pct + '%"></span></div></div>' +
+        '<span class="pct">' + d + '/' + st.ex.length + '</span>';
+      bars.appendChild(row);
+    });
+
+    var redo = $('#redo');
+    redo.innerHTML = '';
+    var shaky = [];
+    STAGES.forEach(function (st) {
+      st.ex.forEach(function (ex) {
+        var s = store.items[ex.id];
+        if (s && s.c === 1) shaky.push({ st: st.name, t: ex.t });
+      });
+    });
+    if (!shaky.length) {
+      var li = document.createElement('li');
+      li.textContent = 'Nothing here. Either you are solid, or you have not started.';
+      redo.appendChild(li);
+    } else {
+      shaky.forEach(function (s) {
+        var li = document.createElement('li');
+        li.innerHTML = '<b>' + s.t + '</b> — ' + s.st;
+        redo.appendChild(li);
+      });
+    }
+  }
+
+  /* ============ NAV ============ */
+  var navBtns = document.querySelectorAll('.nav [data-view]');
+  var pill = $('#pillbar');
+  function movePill(btn) {
+    pill.style.width = btn.offsetWidth + 'px';
+    pill.style.transform = 'translateX(' + btn.offsetLeft + 'px)';
+  }
+  navBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      navBtns.forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+      b.setAttribute('aria-selected', 'true');
+      document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('on'); });
+      $('#view-' + b.getAttribute('data-view')).classList.add('on');
+      movePill(b);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (b.getAttribute('data-view') === 'prog') paintProgress();
+    });
+  });
+  window.addEventListener('resize', function () {
+    var cur = document.querySelector('.nav [aria-selected="true"]');
+    if (cur) movePill(cur);
+  });
+
+  /* ============ THEME ============ */
+  var root = document.documentElement;
+  // First visit is always light. After that we remember the last choice.
+  try {
+    var savedTheme = localStorage.getItem('javaGrind.theme');
+    root.setAttribute('data-theme', savedTheme === 'dark' ? 'dark' : 'light');
+  } catch (e) {}
+  $('#theme').addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('javaGrind.theme', next); } catch (e) {}
+  });
+
+  /* ============ DRILL ============ */
+  var DUR = 90, left = DUR, running = false, tick = null;
+  var CIRC = 439.8;
+  function paintClock() {
+    $('#clock').textContent = Math.floor(left / 60) + ':' + (left % 60 < 10 ? '0' : '') + (left % 60);
+    $('#dfill').style.strokeDashoffset = CIRC * (1 - left / DUR);
+  }
+  function newPrompt() { $('#prompt').textContent = PROMPTS[Math.floor(Math.random() * PROMPTS.length)]; }
+  function halt(state) { clearInterval(tick); tick = null; running = false; $('#cstate').textContent = state; $('#startTxt').textContent = 'Start'; }
+  $('#start').addEventListener('click', function () {
+    if (running) { halt('Paused'); return; }
+    if (left <= 0) left = DUR;
+    if ($('#prompt').textContent.indexOf('Press start') === 0) newPrompt();
+    running = true; $('#cstate').textContent = 'Writing'; $('#startTxt').textContent = 'Pause';
+    markDay(); save();
+    tick = setInterval(function () {
+      left--; paintClock();
+      if (left <= 0) { halt('Time — stop'); toast('Pens down. Now check it.'); }
+    }, 1000);
+  });
+  $('#newp').addEventListener('click', function () { newPrompt(); halt('Ready'); left = DUR; paintClock(); });
+  $('#reset').addEventListener('click', function () { halt('Ready'); left = DUR; paintClock(); });
+  paintClock();
+
+  /* ============ CARDS ============ */
+  var order = CARDS.map(function (_, i) { return i; }), idx = 0;
+  var flip = $('#flip');
+  function showCard() {
+    flip.classList.remove('on');
+    $('#cq').textContent = CARDS[order[idx]][0];
+    $('#ca').textContent = CARDS[order[idx]][1];
+    $('#ccount').textContent = (idx + 1 < 10 ? '0' : '') + (idx + 1) + ' / ' + order.length;
+  }
+  flip.addEventListener('click', function () { flip.classList.toggle('on'); });
+  flip.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip.classList.toggle('on'); }
+  });
+  $('#next').addEventListener('click', function () { idx = (idx + 1) % order.length; showCard(); });
+  $('#prev').addEventListener('click', function () { idx = (idx - 1 + order.length) % order.length; showCard(); });
+  $('#shuf').addEventListener('click', function () {
+    for (var i = order.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = order[i]; order[i] = order[j]; order[j] = t;
+    }
+    idx = 0; showCard();
+  });
+  showCard();
+
+  /* ============ BACKUP ============ */
+  $('#exp').addEventListener('click', function () {
+    var blob = new Blob([JSON.stringify(store, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'java-grind-progress-' + today() + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('Exported');
+  });
+  $('#impBtn').addEventListener('click', function () { $('#imp').click(); });
+  $('#imp').addEventListener('change', function (e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    var fr = new FileReader();
+    fr.onload = function () {
+      try {
+        var data = JSON.parse(fr.result);
+        if (!data.items) throw new Error('bad file');
+        store = data;
+        if (!store.items) store.items = {};
+        if (!store.days) store.days = [];
+        if (!store.reps) store.reps = 0;
+        save(); render(); toast('Progress restored');
+      } catch (err) { toast('That file did not look right'); }
+    };
+    fr.readAsText(f);
+  });
+  $('#wipe').addEventListener('click', function () {
+    if (!confirm('Wipe all progress? Export first if you want a backup.')) return;
+    store = { items: {}, days: [], reps: 0 };
+    save(); render(); toast('Cleared');
+  });
+
+  /* ============ GO ============ */
+  render();
+  markDay(); save();
+  requestAnimationFrame(function () { movePill(document.querySelector('.nav [aria-selected="true"]')); });
+})();
+</script>
+</body>
+</html>
